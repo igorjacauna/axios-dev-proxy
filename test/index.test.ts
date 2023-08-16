@@ -1,145 +1,146 @@
-import { expect, it, describe } from "vitest";
-import axios from "axios";
-import nock from "nock";
-import { defineProxy, defineProxyOnce } from "../src";
+import axios from 'axios';
+import nock from 'nock';
+import { expect, it, describe, beforeEach } from 'vitest';
+import { defineProxy } from '../src';
 
-const BASE_URL = "https://api.com.br";
+const BASE_URL = 'https://api.com.br';
 
 function to(promise: Promise<unknown>) {
   return promise
-    .then((value) => [undefined, value])
-    .catch((error) => [error, undefined]);
+    .then(value => [undefined, value])
+    .catch(error => [error, undefined]);
 }
 
-describe("axios-dev-proxy", () => {
+describe('axios-dev-proxy tests', () => {
   const api = axios.create({
     baseURL: BASE_URL,
   });
+  const server = nock(BASE_URL);
 
-  function execute() {
-    return api.get("/test");
-  }
-  it("should return modified response data once", async () => {
-    nock(BASE_URL)
-      .get("/test")
-      .reply(200, { test: 852 })
-      .get("/test")
-      .reply(200, { test: 852 });
-
-    defineProxyOnce(
-      {
-        "/test": {
-          data: { test: 100 },
-        },
-      },
-      api,
-    );
-
-    let response = await execute();
-    expect(response.data).toEqual({ test: 100 });
-
-    response = await execute();
-    expect(response.data).toEqual({ test: 852 });
+  beforeEach(() => {
+    server.removeAllListeners();
   });
 
-  it("should modified response data always", async () => {
-    nock(BASE_URL)
-      .get("/test")
-      .reply(200, { test: 852 })
-      .get("/test")
-      .reply(200, { test: 852 });
+  const proxy = defineProxy(api);
 
-    const interceptorId = defineProxy(
-      {
-        "/test": {
-          data: { test: 100 },
-        },
-      },
-      api,
-    );
-
-    let response = await execute();
-    expect(response.data).toEqual({ test: 100 });
-
-    response = await execute();
-    expect(response.data).toEqual({ test: 100 });
-
-    // Eject interceptor to prevent breaks next tests
-    api.interceptors.response.eject(interceptorId);
+  it('should not modify response when no route configured', async () => {
+    server.get('/').reply(200, { data: 1 });
+    const response = await api.get('/');
+    expect(response.data).toEqual({ data: 1 });
   });
 
-  it("should not modified response data for other url", async () => {
-    nock(BASE_URL).get("/test").reply(200, { test: 852 });
+  it('should modify response once', async () => {
+    server.get('/').reply(200, { data: 1 }).get('/').reply(200, { data: 1 });
 
-    defineProxyOnce(
-      {
-        "/another-test": {
-          data: { test: 100 },
-        },
-      },
-      api,
-    );
+    proxy.onGet('/').reply(201, {
+      data: 2,
+    });
+    const response = await api.get('/');
+    expect(response.data).toEqual({ data: 2 });
+    expect(response.status).toEqual(201);
 
-    const response = await execute();
-    expect(response.data).toEqual({ test: 852 });
+    const response2 = await api.get('/');
+    expect(response2.data).toEqual({ data: 1 });
+    expect(response2.status).toEqual(200);
   });
 
-  it("should use function to modified request response", async () => {
-    nock(BASE_URL).get("/test").reply(200, { test: 852 });
+  it('should modify response twice', async () => {
+    server
+      .get('/')
+      .reply(200, { data: 1 })
+      .get('/')
+      .reply(200, { data: 1 })
+      .get('/')
+      .reply(200, { data: 1 });
 
-    defineProxyOnce(
-      () => ({
-        "/test": {
-          data: { test: 100 },
-        },
-      }),
-      api,
-    );
+    proxy
+      .onGet('/')
+      .reply(201, {
+        data: 2,
+      })
+      .onGet('/')
+      .reply(201, {
+        data: 2,
+      });
 
-    const response = await execute();
-    expect(response.data).toEqual({ test: 100 });
+    const response = await api.get('/');
+    expect(response.data).toEqual({ data: 2 });
+    expect(response.status).toEqual(201);
+
+    const response2 = await api.get('/');
+    expect(response2.data).toEqual({ data: 2 });
+    expect(response2.status).toEqual(201);
+
+    const response3 = await api.get('/');
+    expect(response3.data).toEqual({ data: 1 });
+    expect(response3.status).toEqual(200);
   });
 
-  it("should modified only second request response", async () => {
-    nock(BASE_URL)
-      .get("/test")
-      .reply(200, { test: 852 })
-      .get("/test")
-      .reply(200, { test: 852 });
+  it('should modify response for only configured path', async () => {
+    server.get('/').reply(200, { data: 1 }).get('/2').reply(200, { data: 2 });
 
-    let times = 1;
-    defineProxyOnce(() => {
-      if (times < 2) {
-        times += 1;
-        return;
-      }
-      return {
-        "/test": {
-          data: { test: 100 },
-        },
-      };
-    }, api);
+    proxy.onGet('/2').reply(201, {
+      data: 22,
+    });
 
-    let response = await execute();
-    expect(response.data).toEqual({ test: 852 });
+    const response = await api.get('/');
+    expect(response.data).toEqual({ data: 1 });
+    expect(response.status).toEqual(200);
 
-    response = await execute();
-    expect(response.data).toEqual({ test: 100 });
+    const response2 = await api.get('/2');
+    expect(response2.data).toEqual({ data: 22 });
+    expect(response2.status).toEqual(201);
   });
 
-  it("should modified response status to error", async () => {
-    nock(BASE_URL).get("/test").reply(200, { test: 852 });
+  it('should modify response even in failure request', async () => {
+    server.get('/').reply(400, { data: 0 });
 
-    defineProxyOnce(
-      {
-        "/test": {
-          status: 500,
-        },
-      },
-      api,
-    );
+    proxy.onGet('/').reply(200, {
+      data: 1,
+    });
 
-    const [ex] = await to(execute());
-    expect(ex.response?.status).toEqual(500);
+    const response = await api.get('/');
+    expect(response.data).toEqual({ data: 1 });
+    expect(response.status).toEqual(200);
+  });
+
+  it('should modify response to error', async () => {
+    server.get('/').reply(200, { data: 1 });
+
+    proxy.onGet('/').reply(400, {
+      data: 1,
+    });
+
+    const [error, response] = await to(api.get('/'));
+    expect(response).toEqual(undefined);
+    expect(error).not.toEqual(undefined);
+  });
+
+  it('should modify response with function', async () => {
+    server.get('/').reply(200, { data: 1 });
+
+    proxy.onGet('/').reply(() => [201, { data: 2 }]);
+
+    const response = await api.get('/');
+    expect(response.data).toEqual({ data: 2 });
+    expect(response.status).toEqual(201);
+  });
+
+  it('should modify only specific verb response', async () => {
+    server
+      .get('/')
+      .reply(200, { data: 1 })
+      .post('/')
+      .reply(200, { data: 'post' });
+
+    proxy.onGet('/').reply(() => [201, { data: 2 }]);
+
+    const responsePost = await api.post('/');
+    expect(responsePost.data).toEqual({ data: 'post' });
+    expect(responsePost.status).toEqual(200);
+
+    const responseGet = await api.get('/');
+    expect(responseGet.data).toEqual({ data: 2 });
+    expect(responseGet.status).toEqual(201);
   });
 });
