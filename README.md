@@ -1,13 +1,6 @@
 # axios-dev-proxy
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![bundle][bundle-src]][bundle-href]
-[![Codecov][codecov-src]][codecov-href]
-[![License][license-src]][license-href]
-[![JSDocs][jsdocs-src]][jsdocs-href]
-
-This is my package description.
+Simple proxy for easy development of frontend with axios.
 
 ## Usage
 
@@ -28,10 +21,36 @@ Import:
 
 ```js
 // ESM
-import {} from "axios-dev-proxy";
+import { defineProxy } from "axios-dev-proxy";
 
 // CommonJS
-const {} = require("axios-dev-proxy");
+const { defineProxy } = require("axios-dev-proxy");
+
+const proxy = defineProxy(axiosInstance);
+
+// Simple use
+proxy.onGet('/path-to-mock').reply(200, {
+  data: 'data to response'
+});
+
+// Use a function to return response
+proxy.onGet('/path-to-mock').reply(200, () => {
+  return { data: 'data to response' }
+});
+
+// To mock ony once, next requests will not be mocked
+proxy.onceGet('/path-to-mock-once').reply(200, {
+  data: 'data to response once'
+});
+
+// Can change the AxiosRequestConfig
+proxy.onGet('/path-to-request').changeRequest((requestConfig) => {
+  requestConfig.baseURL = 'http://another.api';
+  return requestConfig;
+});
+
+// Or just want to see the response change the AxiosRequestConfig
+proxy.onGet('/path-to-request').printResponse();
 ```
 
 ## Development
