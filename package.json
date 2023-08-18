@@ -41,6 +41,7 @@
     "vitest": "0.34.1"
   },
   "dependencies": {
-    "axios": "1.4.0"
+    "axios": "1.4.0",
+    "ohash": "1.1.3"
   }
 }
