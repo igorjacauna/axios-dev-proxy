@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "build": "unbuild",
-    "dev": "vitest dev",
+    "dev": "vitest dev --coverage",
     "lint": "eslint --cache --ext .ts,.js .",
     "lint:fix": "eslint --cache --ext .ts,.js . --fix",
     "prepack": "yarn run build",

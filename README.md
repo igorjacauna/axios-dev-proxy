@@ -1,6 +1,6 @@
 # axios-dev-proxy
 
-Simple proxy for easy development of frontend with axios.
+Simple proxy to mock request for easy development of frontend with axios.
 
 ## Usage
 
@@ -8,13 +8,13 @@ Install package:
 
 ```sh
 # npm
-npm install axios-dev-proxy
+npm install -D axios-dev-proxy
 
 # yarn
-yarn add axios-dev-proxy
+yarn add -D axios-dev-proxy
 
 # pnpm
-pnpm install axios-dev-proxy
+pnpm install -D axios-dev-proxy
 ```
 
 Import:
@@ -30,17 +30,23 @@ const proxy = defineProxy(axiosInstance);
 
 // Simple use
 proxy.onGet('/path-to-mock').reply(200, {
-  data: 'data to response'
+  xpto: 'data to response'
 });
 
-// Use a function to return response
+// Use a function to return array like [status, response]
 proxy.onGet('/path-to-mock').reply(200, () => {
-  return { data: 'data to response' }
+  return [200, { xpto: 'data to response' }]
 });
 
-// To mock ony once, next requests will not be mocked
-proxy.onceGet('/path-to-mock-once').reply(200, {
-  data: 'data to response once'
+// To mock only once, next requests will not be mocked
+proxy.onGet('/path-to-mock-once').replyOnce(200, {
+  xpto: 'data to response once'
+});
+
+// To mock for specific route with specific params
+// Get /path-to-mock?q="value"
+proxy.onGet('/path-to-mock', { q: 'value' }).reply(200, {
+  xpto: 'data to response once'
 });
 
 // Can change the AxiosRequestConfig
@@ -51,6 +57,22 @@ proxy.onGet('/path-to-request').changeRequest((requestConfig) => {
 
 // Or just want to see the response change the AxiosRequestConfig
 proxy.onGet('/path-to-request').printResponse();
+
+// You can chain
+proxy.onGet('/path')
+  // Change the base URL for '/path' requests
+  .changeRequest((requestConfig) => {
+    requestConfig.baseURL = 'http://another.api';
+    return requestConfig;
+  })
+  // Print the response for '/path' requests
+  .printResponse()
+  // On first '/another-path' request only
+  .onGet('/another-path')
+  // Reply once with
+  .replyOnce({
+    xpto: 'lorem ipsum'
+  });
 ```
 
 ## Development
