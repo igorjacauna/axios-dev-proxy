@@ -1,6 +1,6 @@
 {
   "name": "@igorjacauna/axios-dev-proxy",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "repository": "igorjacauna/axios-dev-proxy",
   "license": "MIT",
@@ -26,7 +26,7 @@
     "lint": "eslint --cache --ext .ts,.js .",
     "lint:fix": "eslint --cache --ext .ts,.js . --fix",
     "prepack": "yarn run build",
-    "release": "yarn test && changelogen --release && npm publish && git push --follow-tags",
+    "bump": "yarn test && changelogen --release",
     "test": "yarn lint && vitest run --coverage"
   },
   "devDependencies": {
