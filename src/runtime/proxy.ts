@@ -1,20 +1,13 @@
-import type {
-  AxiosResponse,
-  AxiosInstance,
-  AxiosRequestConfig,
-  InternalAxiosRequestConfig,
-} from 'axios';
-import { isEqual } from 'ohash';
+import type { AxiosResponse, AxiosInstance } from 'axios';
+import {
+  clearAll,
+  ejectFromRequest,
+  ejectFromResponse,
+  matchRequest,
+  matchResponse,
+} from './helpers';
 
-type RouteConfig = (
-  config?: AxiosRequestConfig,
-) => [number, unknown] | Promise<[number, unknown]>;
-
-type RequestConfigChanger = (
-  config: InternalAxiosRequestConfig,
-) => InternalAxiosRequestConfig;
-
-export default class Adapter {
+export default class Proxy {
   axios: AxiosInstance;
 
   verb!: string;
@@ -30,48 +23,15 @@ export default class Adapter {
     this.once = false;
   }
 
-  private hasSameParams(requestParams: object, proxyParams?: object) {
-    if (!proxyParams) return true;
-    return isEqual(requestParams, proxyParams);
-  }
-
-  private matchRequest(
-    verb: string,
-    path: string,
-    config: AxiosRequestConfig,
-    params?: object,
-  ) {
-    return (
-      config.method === verb &&
-      config.url === path &&
-      this.hasSameParams(config.params, params)
-    );
-  }
-
-  private matchResponse(
-    verb: string,
-    path: string,
-    response: AxiosResponse,
-    params?: object,
-  ) {
-    return (
-      response.config.method === verb &&
-      response.config.url === path &&
-      this.hasSameParams(response.config.params, params)
-    );
-  }
-
   private setProxy(statusCodeOrFunction: number | RouteConfig, mock?: unknown) {
     const verbConfig = this.verb;
     const pathConfig = this.path;
     const onceConfig = this.once;
     const paramsConfig = this.params;
     const interceptorId = this.axios.interceptors.request.use(requestConfig => {
-      if (
-        this.matchRequest(verbConfig, pathConfig, requestConfig, paramsConfig)
-      ) {
+      if (matchRequest(verbConfig, pathConfig, requestConfig, paramsConfig)) {
         requestConfig.adapter = config => {
-          if (onceConfig) this.ejectFromRequest(interceptorId);
+          if (onceConfig) ejectFromRequest(this.axios, interceptorId);
           return new Promise((resolve, reject) => {
             if (typeof statusCodeOrFunction === 'function') {
               Promise.resolve(statusCodeOrFunction(requestConfig)).then(
@@ -110,15 +70,16 @@ export default class Adapter {
     });
   }
 
-  private setRequestConfigChanger(configChanger: RequestConfigChanger) {
+  private setRequestConfigChanger(
+    configChanger: RequestConfigChanger,
+    once = false,
+  ) {
     const verbConfig = this.verb;
     const pathConfig = this.path;
     const paramsConfig = this.params;
     const interceptorId = this.axios.interceptors.request.use(requestConfig => {
-      if (
-        this.matchRequest(verbConfig, pathConfig, requestConfig, paramsConfig)
-      ) {
-        if (this.once) this.ejectFromRequest(interceptorId);
+      if (matchRequest(verbConfig, pathConfig, requestConfig, paramsConfig)) {
+        if (once) ejectFromRequest(this.axios, interceptorId);
         const result = configChanger(requestConfig);
         return result;
       }
@@ -126,14 +87,13 @@ export default class Adapter {
     });
   }
 
-  private setPrintableResponse() {
+  private setPrintableResponse(once = false) {
     const verbConfig = this.verb;
     const pathConfig = this.path;
     const paramsConfig = this.params;
-    const onceConfig = this.once;
     const interceptorId = this.axios.interceptors.response.use(response => {
-      if (this.matchResponse(verbConfig, pathConfig, response, paramsConfig)) {
-        if (onceConfig) this.ejectFromResponse(interceptorId);
+      if (matchResponse(verbConfig, pathConfig, response, paramsConfig)) {
+        if (once) ejectFromResponse(this.axios, interceptorId);
         console.log('Response from:', this.path);
         console.log(JSON.stringify(response.data, null, 2));
       }
@@ -148,17 +108,8 @@ export default class Adapter {
     return this;
   }
 
-  private ejectFromRequest(id: number) {
-    this.axios.interceptors.request.eject(id);
-  }
-
-  private ejectFromResponse(id: number) {
-    this.axios.interceptors.response.eject(id);
-  }
-
   clear() {
-    this.axios.interceptors.request.clear();
-    this.axios.interceptors.response.clear();
+    clearAll(this.axios);
   }
 
   reply(statusCodeOrConfig: number | RouteConfig, mock?: unknown) {
@@ -174,26 +125,22 @@ export default class Adapter {
   }
 
   changeRequest(changer: RequestConfigChanger) {
-    this.once = false;
     this.setRequestConfigChanger(changer);
     return this;
   }
 
   changeRequestOnce(changer: RequestConfigChanger) {
-    this.once = true;
-    this.setRequestConfigChanger(changer);
+    this.setRequestConfigChanger(changer, true);
     return this;
   }
 
   printResponse() {
-    this.once = false;
     this.setPrintableResponse();
     return this;
   }
 
   printResponseOnce() {
-    this.once = true;
-    this.setPrintableResponse();
+    this.setPrintableResponse(true);
     return this;
   }
 
