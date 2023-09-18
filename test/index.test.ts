@@ -153,7 +153,7 @@ describe('axios-dev-proxy tests', () => {
       expect(responseGet.status).toEqual(201);
     });
 
-    it('should modify response with query params', async () => {
+    it('should modify response with query params in config', async () => {
       server.get('/').reply(200, { data: 1 });
 
       proxy.onGet('/').replyOnce(201, {
@@ -165,7 +165,19 @@ describe('axios-dev-proxy tests', () => {
       expect(response.status).toEqual(201);
     });
 
-    it('should modify response for route with specific query params', async () => {
+    it('should modify response with query params in path', async () => {
+      server.get('/?q=2').reply(200, { data: 1 });
+
+      proxy.onGet('/').replyOnce(201, {
+        data: 2,
+      });
+
+      const response = await api.get('/?q=2');
+      expect(response.data).toEqual({ data: 2 });
+      expect(response.status).toEqual(201);
+    });
+
+    it('should modify response for route with specific query params in options', async () => {
       server.get('/').reply(200, { data: 1 }).get('/').reply(200, { data: 2 });
 
       proxy.onGet('/', { q: 'param' }).replyOnce(201, {
@@ -177,6 +189,26 @@ describe('axios-dev-proxy tests', () => {
       expect(response.status).toEqual(200);
 
       const response2 = await api.get('/', { params: { q: 'param' } });
+      expect(response2.data).toEqual({ data: 2 });
+      expect(response2.status).toEqual(201);
+    });
+
+    it('should modify response for route with specific query params in path', async () => {
+      server
+        .get('/?q=param')
+        .reply(200, { data: 1 })
+        .get('/?q=param2')
+        .reply(200, { data: 2 });
+
+      proxy.onGet('/', { q: 'param2' }).replyOnce(201, {
+        data: 2,
+      });
+
+      const response = await api.get('/?q=param');
+      expect(response.data).toEqual({ data: 1 });
+      expect(response.status).toEqual(200);
+
+      const response2 = await api.get('/?q=param2');
       expect(response2.data).toEqual({ data: 2 });
       expect(response2.status).toEqual(201);
     });
