@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.0.4
+
+[compare changes](https://undefined/undefined/compare/v0.0.3...v0.0.4)
+
+### 🩹 Fixes
+
+- Fixes match url with query params (531c06c)
+
+### 💅 Refactors
+
+- Adjust class name (848a669)
+- Create handler class (f668dae)
+
+### ❤️  Contributors
+
+- Igor Jacaúna <igor.jacauna@gmail.com>
+
 ## v0.0.3
 
 
