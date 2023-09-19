@@ -1,13 +1,17 @@
+/* eslint-disable max-lines */
 import axios from 'axios';
 import nock from 'nock';
 import { expect, it, describe, beforeEach, vi } from 'vitest';
 import { defineProxy } from '../src';
 
 const BASE_URL = 'https://api.com.br';
-function to(promise: Promise<unknown>) {
-  return promise
-    .then(value => [undefined, value])
-    .catch(error => [error, undefined]);
+async function to(promise: Promise<unknown>) {
+  try {
+    const value = await promise;
+    return [undefined, value];
+  } catch (error) {
+    return [error, undefined];
+  }
 }
 
 describe('axios-dev-proxy tests', () => {
@@ -211,6 +215,17 @@ describe('axios-dev-proxy tests', () => {
       const response2 = await api.get('/?q=param2');
       expect(response2.data).toEqual({ data: 2 });
       expect(response2.status).toEqual(201);
+    });
+
+    it('should modify response for regex route', async () => {
+      server.get('/test/2?q=2').reply(200, { data: 1 });
+
+      proxy.onGet(/\/test\/\d+/).replyOnce(201, {
+        data: 2,
+      });
+      const response = await api.get('/test/2?q=2');
+      expect(response.data).toEqual({ data: 2 });
+      expect(response.status).toEqual(201);
     });
   });
 

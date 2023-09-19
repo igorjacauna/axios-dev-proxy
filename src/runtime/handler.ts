@@ -12,11 +12,16 @@ export default class Handler {
 
   verb!: string;
 
-  path!: string;
+  path!: string | RegExp;
 
   params?: object;
 
-  constructor(scope: Proxy, verb: string, path: string, params?: object) {
+  constructor(
+    scope: Proxy,
+    verb: string,
+    path: string | RegExp,
+    params?: object,
+  ) {
     this.scope = scope;
     this.verb = verb;
     this.path = path;

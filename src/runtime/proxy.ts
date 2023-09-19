@@ -15,7 +15,7 @@ export default class Proxy {
     this.axios = axios;
   }
 
-  private setup(verb: string, path: string, params?: object) {
+  private setup(verb: string, path: string | RegExp, params?: object) {
     const handler = new Handler(this, verb, path, params);
     return handler;
   }
@@ -24,19 +24,19 @@ export default class Proxy {
     clearAll(this.axios);
   }
 
-  onGet(path: string, params?: object) {
+  onGet(path: string | RegExp, params?: object) {
     return this.setup('get', path, params);
   }
 
-  onPost(path: string, params?: object) {
+  onPost(path: string | RegExp, params?: object) {
     return this.setup('post', path, params);
   }
 
-  onPut(path: string, params?: object) {
+  onPut(path: string | RegExp, params?: object) {
     return this.setup('put', path, params);
   }
 
-  onPatch(path: string, params?: object) {
+  onPatch(path: string | RegExp, params?: object) {
     return this.setup('patch', path, params);
   }
 }
