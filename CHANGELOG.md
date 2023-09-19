@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.5
+
+[compare changes](https://undefined/undefined/compare/v0.0.4...v0.0.5)
+
+### 🚀 Enhancements
+
+- Add regex support to match urls (0ab6586)
+
+### ❤️  Contributors
+
+- Igor Jacaúna <igor.jacauna@gmail.com>
+
 ## v0.0.4
 
 [compare changes](https://undefined/undefined/compare/v0.0.3...v0.0.4)
