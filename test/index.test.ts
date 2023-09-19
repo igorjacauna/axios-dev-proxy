@@ -356,6 +356,25 @@ describe('axios-dev-proxy tests', () => {
       expect(consoleLog).toBeCalledTimes(2);
     });
 
+    it('should print response once with regex on match', async () => {
+      server
+        .get('/print-response')
+        .reply(200, { data: 1 })
+        .get('/print-response')
+        .reply(200, { data: 2 });
+      const consoleLog = vi.spyOn(console, 'log');
+      proxy.onGet(/\/print-\w+/).printResponseOnce();
+
+      await api.get('/print-response');
+      await api.get('/print-response');
+
+      expect(consoleLog).toHaveBeenNthCalledWith(
+        2,
+        JSON.stringify({ data: 1 }, null, 2),
+      );
+      expect(consoleLog).toBeCalledTimes(2);
+    });
+
     it('should change the request config', async () => {
       const server2 = nock('https://api-2.com.br');
       server2.get('/config').reply(200, { data: 2 });

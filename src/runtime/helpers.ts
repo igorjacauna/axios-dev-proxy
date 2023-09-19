@@ -37,17 +37,26 @@ export function matchRequest(
   return true;
 }
 
+// eslint-disable-next-line complexity
 export function matchResponse(
   verb: string,
-  path: string,
+  path: string | RegExp,
   response: AxiosResponse,
   params?: object,
 ) {
-  return (
-    response.config.method === verb &&
-    response.config.url === path &&
-    hasSameParams(response.config.params, params)
-  );
+  const { config } = response;
+  if (!config.url) return false;
+  const samePath = matchPaths(path, config.url);
+  const requestURL = new $URL(config.url);
+
+  const sameMethod = config.method === verb;
+
+  if (!sameMethod) return false;
+  if (!samePath) return false;
+
+  if (params) return hasSameParams(params, config.params || requestURL.query);
+
+  return true;
 }
 
 export function ejectFromRequest(axios: AxiosInstance, id: number) {
