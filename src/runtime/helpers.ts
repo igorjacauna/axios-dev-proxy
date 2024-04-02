@@ -1,60 +1,65 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isEqual } from 'ohash';
-import { $URL } from 'ufo';
+import { parseURL, parseQuery } from 'ufo';
 
-function matchPaths(path: string | RegExp, url: string) {
-  if (typeof path === 'string') {
-    const requestURL = new $URL(url);
-    const matchURL = new $URL(path);
+function matchPaths(pathToMatch: string | RegExp, url: string) {
+  if (typeof pathToMatch === 'string') {
+    const requestURL = parseURL(url);
+    const matchURL = parseURL(pathToMatch);
     return requestURL.pathname === matchURL.pathname;
   }
-  return path.exec(url);
+  return pathToMatch.exec(url);
 }
 
-export function hasSameParams(requestParams: object, proxyParams?: object) {
-  if (!proxyParams) return true;
-  return isEqual(requestParams, proxyParams);
+export function hasSameParams(paramsToMatch: object, requestParams?: object) {
+  return isEqual(paramsToMatch, requestParams);
 }
 
 // eslint-disable-next-line complexity
 export function matchRequest(
-  verb: string,
-  path: string | RegExp,
+  verbToMatch: string,
+  pathToMatch: string | RegExp,
   config: AxiosRequestConfig,
-  params?: object,
+  paramsToMatch?: object,
 ) {
   if (!config.url) return false;
-  const samePath = matchPaths(path, config.url);
-  const requestURL = new $URL(config.url);
+  const samePath = matchPaths(pathToMatch, config.url);
+  const requestURL = parseURL(config.url);
 
-  const sameMethod = config.method === verb;
+  const sameMethod = config.method === verbToMatch;
 
   if (!sameMethod) return false;
   if (!samePath) return false;
 
-  if (params) return hasSameParams(params, config.params || requestURL.query);
+  const searchParams = parseQuery(requestURL.search || '');
+
+  if (paramsToMatch)
+    return hasSameParams(paramsToMatch, config.params || searchParams);
 
   return true;
 }
 
 // eslint-disable-next-line complexity
 export function matchResponse(
-  verb: string,
-  path: string | RegExp,
+  verbToMatch: string,
+  pathToMatch: string | RegExp,
   response: AxiosResponse,
-  params?: object,
+  paramsToMatch?: object,
 ) {
   const { config } = response;
   if (!config.url) return false;
-  const samePath = matchPaths(path, config.url);
-  const requestURL = new $URL(config.url);
+  const samePath = matchPaths(pathToMatch, config.url);
+  const requestURL = parseURL(config.url);
 
-  const sameMethod = config.method === verb;
+  const sameMethod = config.method === verbToMatch;
 
   if (!sameMethod) return false;
   if (!samePath) return false;
 
-  if (params) return hasSameParams(params, config.params || requestURL.query);
+  const searchParams = parseQuery(requestURL.search || '');
+
+  if (paramsToMatch)
+    return hasSameParams(paramsToMatch, config.params || searchParams);
 
   return true;
 }

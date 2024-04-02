@@ -182,7 +182,7 @@ describe('axios-dev-proxy tests', () => {
     });
 
     it('should modify response for route with specific query params in options', async () => {
-      server.get('/').reply(200, { data: 1 }).get('/').reply(200, { data: 2 });
+      server.get('/').reply(200, { data: 1 }).get('/').reply(200, { data: 1 });
 
       proxy.onGet('/', { q: 'param' }).replyOnce(201, {
         data: 2,
@@ -202,7 +202,7 @@ describe('axios-dev-proxy tests', () => {
         .get('/?q=param')
         .reply(200, { data: 1 })
         .get('/?q=param2')
-        .reply(200, { data: 2 });
+        .reply(200, { data: 1 });
 
       proxy.onGet('/', { q: 'param2' }).replyOnce(201, {
         data: 2,
