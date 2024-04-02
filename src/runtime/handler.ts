@@ -1,4 +1,5 @@
 import type { AxiosResponse } from 'axios';
+import type { RequestConfigChanger, RouteConfig } from '../types';
 import {
   ejectFromRequest,
   ejectFromResponse,
