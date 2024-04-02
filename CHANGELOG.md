@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v0.0.7
+
+[compare changes](https://github.com/igorjacauna/axios-dev-proxy/compare/v0.0.6...v0.0.7)
+
+### 🚀 Enhancements
+
+- Use parseURL and parseQuery from ufo ([3bd9ab8](https://github.com/igorjacauna/axios-dev-proxy/commit/3bd9ab8))
+
+### 🩹 Fixes
+
+- Typos ([4a8f99c](https://github.com/igorjacauna/axios-dev-proxy/commit/4a8f99c))
+
+### 🏡 Chore
+
+- Update deps ([11eb1f9](https://github.com/igorjacauna/axios-dev-proxy/commit/11eb1f9))
+
+### ❤️ Contributors
+
+- Igor Jacaúna <igor.jacauna@gmail.com>
+
 ## v0.0.6
 
 [compare changes](https://undefined/undefined/compare/v0.0.5...v0.0.6)
