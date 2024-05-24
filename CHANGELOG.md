@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.8
+
+[compare changes](https://github.com/igorjacauna/axios-dev-proxy/compare/v0.0.7...v0.0.8)
+
+### 🚀 Enhancements
+
+- Add original response data changer ([9cea561](https://github.com/igorjacauna/axios-dev-proxy/commit/9cea561))
+
+### ❤️ Contributors
+
+- Igor Jacaúna <igor.jacauna@gmail.com>
+
 ## v0.0.7
 
 [compare changes](https://github.com/igorjacauna/axios-dev-proxy/compare/v0.0.6...v0.0.7)
