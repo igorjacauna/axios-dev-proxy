@@ -227,6 +227,20 @@ describe('axios-dev-proxy tests', () => {
       expect(response.data).toEqual({ data: 2 });
       expect(response.status).toEqual(201);
     });
+
+    it('should change original response', async () => {
+      server.get('/').reply(200, { data: 1, xpto: 2 });
+
+      proxy.onGet('/').changeResponseDataOnce(data => ({
+        ...data,
+        data: 2,
+      }));
+
+      const response = await api.get('/');
+
+      expect(response.data).toEqual({ data: 2, xpto: 2 });
+      expect(response.status).toEqual(200);
+    });
   });
 
   describe('always GET configs', () => {

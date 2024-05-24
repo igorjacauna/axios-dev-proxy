@@ -1,5 +1,9 @@
 import type { AxiosResponse } from 'axios';
-import type { RequestConfigChanger, RouteConfig } from '../types';
+import type {
+  RequestConfigChanger,
+  ResponseChanger,
+  RouteConfig,
+} from '../types';
 import {
   ejectFromRequest,
   ejectFromResponse,
@@ -105,8 +109,28 @@ export default class Handler {
       response => {
         if (matchResponse(verbConfig, pathConfig, response, paramsConfig)) {
           if (once) ejectFromResponse(this.scope.axios, interceptorId);
+          // eslint-disable-next-line no-console
           console.log('Response from:', this.path);
+          // eslint-disable-next-line no-console
           console.log(JSON.stringify(response.data, null, 2));
+        }
+        return response;
+      },
+    );
+  }
+
+  private setChangerResponseData(
+    responseChanger: ResponseChanger,
+    once = false,
+  ) {
+    const verbConfig = this.verb;
+    const pathConfig = this.path;
+    const paramsConfig = this.params;
+    const interceptorId = this.scope.axios.interceptors.response.use(
+      response => {
+        if (matchResponse(verbConfig, pathConfig, response, paramsConfig)) {
+          if (once) ejectFromResponse(this.scope.axios, interceptorId);
+          response.data = responseChanger(response.data);
         }
         return response;
       },
@@ -140,6 +164,16 @@ export default class Handler {
 
   printResponseOnce() {
     this.setPrintableResponse(true);
+    return this;
+  }
+
+  changeResponseData(changer: ResponseChanger) {
+    this.setChangerResponseData(changer);
+    return this;
+  }
+
+  changeResponseDataOnce(changer: ResponseChanger) {
+    this.setChangerResponseData(changer, true);
     return this;
   }
 }

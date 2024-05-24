@@ -1,4 +1,8 @@
-import type { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
+import type {
+  AxiosRequestConfig,
+  InternalAxiosRequestConfig,
+  AxiosResponse,
+} from 'axios';
 
 export type RouteConfig = (
   config?: AxiosRequestConfig,
@@ -7,3 +11,5 @@ export type RouteConfig = (
 export type RequestConfigChanger = (
   config: InternalAxiosRequestConfig,
 ) => InternalAxiosRequestConfig;
+
+export type ResponseChanger = (response: AxiosResponse) => AxiosResponse;

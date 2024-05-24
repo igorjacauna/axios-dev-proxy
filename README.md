@@ -55,6 +55,17 @@ proxy.onGet('/path-to-request').changeRequest((requestConfig) => {
   return requestConfig;
 });
 
+// Can change original response data
+proxy.onGet('/').changeResponseData(originalData => ({
+  ...originalData,
+  override: 'another value',
+}));
+
+proxy.onGet('/').changeResponseDataOnce(originalData => ({
+  ...originalData,
+  override: 'another value once',
+}));
+
 // Or just want to see the response change the AxiosRequestConfig
 proxy.onGet('/path-to-request').printResponse();
 
