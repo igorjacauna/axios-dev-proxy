@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.9
+
+[compare changes](https://github.com/igorjacauna/axios-dev-proxy/compare/v0.0.8...v0.0.9)
+
+### 🩹 Fixes
+
+- Typos ([9fe18cc](https://github.com/igorjacauna/axios-dev-proxy/commit/9fe18cc))
+
+### ❤️ Contributors
+
+- Igor Jacaúna <igor.jacauna@gmail.com>
+
 ## v0.0.8
 
 [compare changes](https://github.com/igorjacauna/axios-dev-proxy/compare/v0.0.7...v0.0.8)
