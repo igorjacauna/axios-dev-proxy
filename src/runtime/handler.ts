@@ -119,15 +119,15 @@ export default class Handler {
     );
   }
 
-  private setChangerResponseData(
-    responseChanger: ResponseChanger,
+  private setChangerResponseData<T>(
+    responseChanger: ResponseChanger<T>,
     once = false,
   ) {
     const verbConfig = this.verb;
     const pathConfig = this.path;
     const paramsConfig = this.params;
     const interceptorId = this.scope.axios.interceptors.response.use(
-      response => {
+      (response: AxiosResponse<T>) => {
         if (matchResponse(verbConfig, pathConfig, response, paramsConfig)) {
           if (once) ejectFromResponse(this.scope.axios, interceptorId);
           response.data = responseChanger(response.data);
@@ -167,13 +167,13 @@ export default class Handler {
     return this;
   }
 
-  changeResponseData(changer: ResponseChanger) {
-    this.setChangerResponseData(changer);
+  changeResponseData<T>(changer: ResponseChanger<T>) {
+    this.setChangerResponseData<T>(changer);
     return this;
   }
 
-  changeResponseDataOnce(changer: ResponseChanger) {
-    this.setChangerResponseData(changer, true);
+  changeResponseDataOnce<T>(changer: ResponseChanger<T>) {
+    this.setChangerResponseData<T>(changer, true);
     return this;
   }
 }

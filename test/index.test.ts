@@ -231,7 +231,10 @@ describe('axios-dev-proxy tests', () => {
     it('should change original response', async () => {
       server.get('/').reply(200, { data: 1, xpto: 2 });
 
-      proxy.onGet('/').changeResponseDataOnce(data => ({
+      proxy.onGet('/').changeResponseDataOnce<{
+        data: number;
+        xpto: number;
+      }>(data => ({
         ...data,
         data: 2,
       }));

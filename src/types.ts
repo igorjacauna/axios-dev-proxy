@@ -1,8 +1,4 @@
-import type {
-  AxiosRequestConfig,
-  InternalAxiosRequestConfig,
-  AxiosResponse,
-} from 'axios';
+import type { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 
 export type RouteConfig = (
   config?: AxiosRequestConfig,
@@ -12,4 +8,5 @@ export type RequestConfigChanger = (
   config: InternalAxiosRequestConfig,
 ) => InternalAxiosRequestConfig;
 
-export type ResponseChanger = (response: AxiosResponse) => AxiosResponse;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ResponseChanger<T = any> = (data: T) => T;
