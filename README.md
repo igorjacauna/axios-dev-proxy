@@ -34,7 +34,7 @@ proxy.onGet('/path-to-mock').reply(200, {
 });
 
 // Use a function to return array like [status, response]
-proxy.onGet('/path-to-mock').reply(200, () => {
+proxy.onGet('/path-to-mock').reply(() => {
   return [200, { xpto: 'data to response' }]
 });
 
