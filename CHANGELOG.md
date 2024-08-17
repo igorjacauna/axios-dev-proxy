@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v0.0.10
+
+[compare changes](https://github.com/igorjacauna/axios-dev-proxy/compare/v0.0.9...v0.0.10)
+
+### 🚀 Enhancements
+
+- Accepts promises for change config and change response ([c838f37](https://github.com/igorjacauna/axios-dev-proxy/commit/c838f37))
+
+### 🏡 Chore
+
+- Removes workflow unused ([9f8e442](https://github.com/igorjacauna/axios-dev-proxy/commit/9f8e442))
+
+### ❤️ Contributors
+
+- Igor Jacaúna <igor.jacauna@gmail.com>
+
 ## v0.0.9
 
 [compare changes](https://github.com/igorjacauna/axios-dev-proxy/compare/v0.0.8...v0.0.9)
