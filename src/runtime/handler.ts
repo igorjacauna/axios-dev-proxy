@@ -90,10 +90,10 @@ export default class Handler {
     const pathConfig = this.path;
     const paramsConfig = this.params;
     const interceptorId = this.scope.axios.interceptors.request.use(
-      requestConfig => {
+      async requestConfig => {
         if (matchRequest(verbConfig, pathConfig, requestConfig, paramsConfig)) {
           if (once) ejectFromRequest(this.scope.axios, interceptorId);
-          const result = configChanger(requestConfig);
+          const result = await Promise.resolve(configChanger(requestConfig));
           return result;
         }
         return requestConfig;
@@ -127,10 +127,10 @@ export default class Handler {
     const pathConfig = this.path;
     const paramsConfig = this.params;
     const interceptorId = this.scope.axios.interceptors.response.use(
-      (response: AxiosResponse<T>) => {
+      async (response: AxiosResponse<T>) => {
         if (matchResponse(verbConfig, pathConfig, response, paramsConfig)) {
           if (once) ejectFromResponse(this.scope.axios, interceptorId);
-          response.data = responseChanger(response.data);
+          response.data = await Promise.resolve(responseChanger(response.data));
         }
         return response;
       },

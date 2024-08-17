@@ -244,6 +244,28 @@ describe('axios-dev-proxy tests', () => {
       expect(response.data).toEqual({ data: 2, xpto: 2 });
       expect(response.status).toEqual(200);
     });
+
+    it('should change original response with promise', async () => {
+      server.get('/').reply(200, { data: 1, xpto: 2 });
+
+      proxy.onGet('/').changeResponseDataOnce<{
+        data: number;
+        xpto: number;
+      }>(
+        data =>
+          new Promise(resolve => {
+            resolve({
+              ...data,
+              data: 2,
+            });
+          }),
+      );
+
+      const response = await api.get('/');
+
+      expect(response.data).toEqual({ data: 2, xpto: 2 });
+      expect(response.status).toEqual(200);
+    });
   });
 
   describe('always GET configs', () => {
@@ -447,6 +469,25 @@ describe('axios-dev-proxy tests', () => {
 
       expect(server.pendingMocks()).toHaveLength(1);
       expect(server2.pendingMocks()).toHaveLength(1);
+    });
+
+    it('should change the request config once with a promise', async () => {
+      const server2 = nock('https://api-2.com.br');
+      server2.get('/config').reply(200, { data: 2 });
+      server.get('/config').reply(200, { data: 1 });
+      proxy.onGet('/config').changeRequestOnce(
+        async config =>
+          new Promise(resolve => {
+            config.baseURL = 'https://api-2.com.br';
+            resolve(config);
+          }),
+      );
+
+      await api.get('/config');
+      await api.get('/config');
+
+      expect(server.isDone()).toBe(true);
+      expect(server2.isDone()).toBe(true);
     });
   });
 });

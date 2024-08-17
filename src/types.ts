@@ -6,7 +6,7 @@ export type RouteConfig = (
 
 export type RequestConfigChanger = (
   config: InternalAxiosRequestConfig,
-) => InternalAxiosRequestConfig;
+) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ResponseChanger<T = any> = (data: T) => T;
+export type ResponseChanger<T = any> = (data: T) => T | Promise<T>;
