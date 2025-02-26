@@ -4,6 +4,7 @@ import type {
   ResponseChanger,
   RouteConfig,
 } from '../types';
+import { DocGenerator } from './docGenerator';
 import {
   ejectFromRequest,
   ejectFromResponse,
@@ -21,16 +22,20 @@ export default class Handler {
 
   params?: object;
 
+  docGenerator?: DocGenerator;
+
   constructor(
     scope: Proxy,
     verb: string,
     path: string | RegExp,
     params?: object,
+    docGenerator?: DocGenerator,
   ) {
     this.scope = scope;
     this.verb = verb;
     this.path = path;
     this.params = params;
+    this.docGenerator = docGenerator;
   }
 
   private setProxy(
@@ -71,7 +76,6 @@ export default class Handler {
                 config,
                 request: requestConfig,
               };
-
               if (status < 400) resolve(response);
               else reject(response);
             });
@@ -139,11 +143,13 @@ export default class Handler {
 
   reply(statusCodeOrConfig: number | RouteConfig, mock?: unknown) {
     this.setProxy(statusCodeOrConfig, mock);
+    this.addMockDoc(statusCodeOrConfig, mock);
     return this.scope;
   }
 
   replyOnce(statusCodeOrConfig: number | RouteConfig, mock?: unknown) {
     this.setProxy(statusCodeOrConfig, mock, true);
+    this.addMockDoc(statusCodeOrConfig, mock);
     return this.scope;
   }
 
@@ -175,5 +181,22 @@ export default class Handler {
   changeResponseDataOnce<T>(changer: ResponseChanger<T>) {
     this.setChangerResponseData<T>(changer, true);
     return this;
+  }
+
+  addMockDoc(statusCodeOrFunction: number | RouteConfig, mock?: unknown) {
+    if (typeof statusCodeOrFunction === 'function') {
+      Promise.resolve(statusCodeOrFunction()).then(result => {
+        const [status, data] = result;
+        this.docGenerator?.addMock(
+          this.verb,
+          this.path.toString(),
+          status,
+          data,
+        );
+      });
+      return;
+    }
+    const status = statusCodeOrFunction;
+    this.docGenerator?.addMock(this.verb, this.path.toString(), status, mock);
   }
 }

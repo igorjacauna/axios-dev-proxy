@@ -1,4 +1,5 @@
 import type { AxiosInstance } from 'axios';
+import { DocGenerator } from './docGenerator';
 import Handler from './handler';
 import { clearAll } from './helpers';
 
@@ -11,12 +12,15 @@ export default class Proxy {
 
   params?: object;
 
-  constructor(axios: AxiosInstance) {
+  docGenerator?: DocGenerator;
+
+  constructor(axios: AxiosInstance, generateDocs = false) {
     this.axios = axios;
+    if (generateDocs) this.docGenerator = new DocGenerator();
   }
 
   private setup(verb: string, path: string | RegExp, params?: object) {
-    const handler = new Handler(this, verb, path, params);
+    const handler = new Handler(this, verb, path, params, this.docGenerator);
     return handler;
   }
 

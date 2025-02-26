@@ -489,5 +489,25 @@ describe('axios-dev-proxy tests', () => {
       expect(server.isDone()).toBe(true);
       expect(server2.isDone()).toBe(true);
     });
+
+    it('should print docs once', async () => {
+      const documentedProxy = defineProxy(api, true);
+      server
+        .get('/generate-doc')
+        .reply(200, { data: 1 })
+        .get('/generate-doc-2')
+        .reply(200, { data: 2 });
+      const consoleLog = vi.spyOn(console, 'log');
+      documentedProxy.onGet('/generate-doc').reply(200, {
+        data: 'doc-1',
+      });
+      documentedProxy
+        .onGet('/generate-doc-2')
+        .reply(() => [201, { data: 'doc-2' }]);
+
+      await api.get('/generate-doc');
+      await api.get('/generate-doc-2');
+      expect(consoleLog).toBeCalled();
+    });
   });
 });
