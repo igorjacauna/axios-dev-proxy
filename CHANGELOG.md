@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.11
+
+[compare changes](https://github.com/igorjacauna/axios-dev-proxy/compare/v0.0.10...v0.0.11)
+
+### 🚀 Enhancements
+
+- Print OpenAPI docs for mocks ([8555a9e](https://github.com/igorjacauna/axios-dev-proxy/commit/8555a9e))
+
+### ❤️ Contributors
+
+- Igor Jacaúna <igor.jacauna@gmail.com>
+
 ## v0.0.10
 
 [compare changes](https://github.com/igorjacauna/axios-dev-proxy/compare/v0.0.9...v0.0.10)
