@@ -1,5 +1,6 @@
 interface MockResponse {
   status: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 }
 
@@ -15,6 +16,7 @@ interface OpenAPI {
     title: string;
     version: string;
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   paths: Record<string, any>;
 }
 
@@ -38,6 +40,7 @@ export class DocGenerator {
     method: string,
     path: string,
     status: number,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body: any,
   ): void {
     // Verifica se já existe um mock com o mesmo método e path para evitar duplicação

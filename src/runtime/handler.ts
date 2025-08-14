@@ -1,4 +1,5 @@
 import type { AxiosResponse } from 'axios';
+import { AxiosError } from 'axios';
 import type {
   RequestConfigChanger,
   ResponseChanger,
@@ -62,7 +63,16 @@ export default class Handler {
                       request: requestConfig,
                     };
                     if (status < 400) resolve(response);
-                    else reject(response);
+                    else {
+                      const err = new AxiosError(
+                        `Request failed with status code ${status}`,
+                        status >= 500 ? 'ERR_BAD_RESPONSE' : 'ERR_BAD_REQUEST',
+                        config,
+                        response.request,
+                        response,
+                      );
+                      reject(err);
+                    }
                   },
                 );
                 return;
@@ -77,7 +87,16 @@ export default class Handler {
                 request: requestConfig,
               };
               if (status < 400) resolve(response);
-              else reject(response);
+              else {
+                const err = new AxiosError(
+                  `Request failed with status code ${status}`,
+                  status >= 500 ? 'ERR_BAD_RESPONSE' : 'ERR_BAD_REQUEST',
+                  config,
+                  response.request,
+                  response,
+                );
+                reject(err);
+              }
             });
           };
         }
