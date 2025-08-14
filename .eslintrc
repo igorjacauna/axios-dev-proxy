@@ -1,6 +1,0 @@
-{
-  "extends": ["@igorjacauna/eslint-config-typescript"],
-  "rules": {
-    "no-param-reassign": "off"
-  }
-}

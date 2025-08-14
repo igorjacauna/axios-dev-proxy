@@ -16,10 +16,9 @@ jobs:
       - run: corepack enable
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
-          cache: "yarn"
-      - run: yarn install
-      - run: yarn lint
-      - run: yarn build
-      - run: yarn vitest --coverage
+          node-version: 22
+      - run: pnpm install
+      - run: pnpm lint
+      - run: pnpm build
+      - run: pnpm vitest --coverage
       - uses: codecov/codecov-action@v3
