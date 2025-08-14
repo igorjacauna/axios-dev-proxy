@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v0.0.12
+
+[compare changes](https://github.com/igorjacauna/axios-dev-proxy/compare/v0.0.11...v0.0.12)
+
+### 🩹 Fixes
+
+- Uses AxiosError on rejected responses ([2e6e186](https://github.com/igorjacauna/axios-dev-proxy/commit/2e6e186))
+
+### 🏡 Chore
+
+- Updates eslint and use pnpm instead yarn ([31d9c94](https://github.com/igorjacauna/axios-dev-proxy/commit/31d9c94))
+
+### ❤️ Contributors
+
+- Igor Jacaúna <igor.jacauna@gmail.com>
+
 ## v0.0.11
 
 [compare changes](https://github.com/igorjacauna/axios-dev-proxy/compare/v0.0.10...v0.0.11)
